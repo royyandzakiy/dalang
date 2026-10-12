@@ -18,7 +18,7 @@
 namespace sp = subprocess;
 namespace fs = std::filesystem;
 
-constexpr std::array<std::pair<std::string_view, std::string_view>, 4> template_type_map{{
+constexpr std::array<std::pair<std::string_view, std::string_view>, 5> template_type_map{{
 	{"full", "https://github.com/royyandzakiy/cpp-project-template"},
 	{"min", "https://github.com/royyandzakiy/cpp-project-template-min"},
 	{"zephyr", "https://github.com/royyandzakiy/zephyr-project-template"},
