@@ -1,57 +1,29 @@
-# dalang_core: everything except the CLI and the interactive form, so tests can link it.
-# dalang: the command-line executable.
-
-# ---- Build info -------------------------------------------------------------
-# Embeds templates.toml and the version into a generated header, so the binary works without
-# any files next to it. Re-run configure when templates.toml changes.
+# Embeds templates.toml and the version into a generated header, so the binary needs no files
+# next to it. Re-runs configure when templates.toml changes.
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/templates.toml")
 file(READ "${PROJECT_SOURCE_DIR}/templates.toml" DALANG_TEMPLATES_TOML)
 configure_file(dalang/build_info.hpp.in "${CMAKE_CURRENT_BINARY_DIR}/generated/dalang/build_info.hpp" @ONLY)
 
-# ---- Core library -----------------------------------------------------------
-add_library(dalang_core STATIC)
-target_sources(dalang_core
-    PRIVATE
-        dalang/generator.cpp
-        dalang/git.cpp
-        dalang/process.cpp
-        dalang/templates.cpp
-)
-target_include_directories(dalang_core
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}/generated
-)
-target_compile_features(dalang_core PUBLIC cxx_std_23)
-# Error handling uses toml::parse_result instead of exceptions.
-target_compile_definitions(dalang_core PRIVATE TOML_EXCEPTIONS=0)
-target_link_libraries(dalang_core
-    PUBLIC
-        fmt::fmt
-    PRIVATE
-        reproc++
-        tomlplusplus::tomlplusplus
-)
-configure_target(dalang_core)
+# Core code compiles once, here, as an OBJECT library. The executable takes its objects and
+# the unit tests link it directly. Usage requirements are PUBLIC so the tests inherit them.
+add_library(dalang_internal OBJECT dalang/core.cpp)
 
-# ---- Executable -------------------------------------------------------------
-add_executable(${PROJECT_NAME})
-target_sources(${PROJECT_NAME}
-    PRIVATE
-        main.cpp
-        interactive.cpp
+target_include_directories(
+  dalang_internal PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} # dalang/*.hpp
+                         ${CMAKE_CURRENT_BINARY_DIR}/generated # dalang/build_info.hpp
 )
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-        dalang_core
-        CLI11::CLI11
-        ftxui::component
-)
+target_compile_features(dalang_internal PUBLIC cxx_std_23)
+target_compile_definitions(dalang_internal PUBLIC TOML_EXCEPTIONS=0) # errors via toml::parse_result
+target_link_libraries(dalang_internal PUBLIC fmt::fmt reproc++ tomlplusplus::tomlplusplus)
+configure_target(dalang_internal)
+
+add_executable(${PROJECT_NAME} main.cpp $<TARGET_OBJECTS:dalang_internal>)
+target_link_libraries(${PROJECT_NAME} PRIVATE dalang_internal CLI11::CLI11 ftxui::component)
 configure_target(${PROJECT_NAME})
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 
 if(ENABLE_SANITIZERS)
-  target_enable_sanitizers(dalang_core)
+  target_enable_sanitizers(dalang_internal)
   target_enable_sanitizers(${PROJECT_NAME})
 endif()
