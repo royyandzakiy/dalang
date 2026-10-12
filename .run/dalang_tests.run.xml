@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <!-- Shared CLion run/debug config for the GoogleTest target. -->
-  <configuration default="false" name="unit_tests" type="CMakeGoogleTestRunConfiguration" factoryName="Google Test"
+  <configuration default="false" name="dalang_tests" type="CMakeGoogleTestRunConfiguration" factoryName="Google Test"
                  PROGRAM_PARAMS="" REDIRECT_INPUT="false" ELEVATE="false"
                  USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true"
-                 PROJECT_NAME="cpp_project_template" TARGET_NAME="unit_tests"
-                 CONFIG_NAME="" RUN_TARGET_PROJECT_NAME="cpp_project_template"
-                 RUN_TARGET_NAME="unit_tests">
+                 PROJECT_NAME="dalang" TARGET_NAME="dalang_tests"
+                 CONFIG_NAME="" RUN_TARGET_PROJECT_NAME="dalang"
+                 RUN_TARGET_NAME="dalang_tests">
     <method v="2">
       <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
     </method>

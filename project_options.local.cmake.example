@@ -24,8 +24,7 @@ set(PKG_MANAGER conan)
 # Build everything
 # =============================================================================
 set(BUILD_TESTING ON)           # compile and register all tests under test/ (requires GTest)
-set(BUILD_EXAMPLES ON)          # build the examples/ demos (example_mylib, example_tracy, example_perfetto, …)
-set(GENERATE_VERSION_HEADER ON) # regenerate include/<project>/version.h from version.txt on every build
+set(BUILD_EXAMPLES ON)          # build the examples/ demos (example_tracy, example_perfetto)
 
 # =============================================================================
 # Code quality

@@ -1,0 +1,41 @@
+# Built-in templates, embedded into the dalang binary at build time.
+# Add or override templates without rebuilding by putting [[template]] entries in
+# %APPDATA%\dalang\templates.toml (Windows) or ~/.config/dalang/templates.toml (Linux/macOS).
+#
+#   name        - value for `dalang new -t <name>`
+#   url         - any URL `git clone` accepts
+#   description - shown by `dalang list`
+#   rename      - optional; replaces `token` with the project name in each of `files`
+
+[[template]]
+name = "min"
+url = "https://github.com/royyandzakiy/cpp-project-template-min"
+description = "Minimal C++23 CMake project with presets, Conan/vcpkg and GoogleTest"
+rename = { token = "cpp_project_template", files = ["CMakeLists.txt"] }
+
+[[template]]
+name = "full"
+url = "https://github.com/royyandzakiy/cpp-project-template"
+description = "C++23 CMake project with sanitizers, coverage, profilers and multi-OS CI"
+rename = { token = "cpp_project_template", files = [
+    "CMakeLists.txt",
+    ".run/app.run.xml",
+    ".run/unit_tests.run.xml",
+] }
+
+[[template]]
+name = "qml"
+url = "https://github.com/royyandzakiy/qml-project-template"
+description = "Qt 6 / QML desktop app in C++23 with CMake presets and vcpkg"
+rename = { token = "qt_qml_simple_hello", files = ["CMakeLists.txt"] }
+
+[[template]]
+name = "zephyr"
+url = "https://github.com/royyandzakiy/zephyr-project-template"
+description = "Zephyr RTOS workspace with west, devcontainer, Twister and Renode"
+
+[[template]]
+name = "idf"
+url = "https://github.com/royyandzakiy/esp-idf-project-template"
+description = "ESP-IDF firmware project for ESP32"
+rename = { token = "esp-idf-dynamic-freq-scaling", files = ["CMakeLists.txt"] }

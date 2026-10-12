@@ -1,6 +1,6 @@
 {
   // Three debug configs, all preset-agnostic via ${command:cmake.launchTargetPath}
-  // (they follow the active CMake Tools target — pick app/unit_tests in the status bar).
+  // (they follow the active CMake Tools target — pick dalang/dalang_tests in the status bar).
   // Pick the matching one from the F5 dropdown for your toolchain:
   //   - LLDB     : default, cross-platform (Clang / Apple Clang / clang-cl / GCC)
   //   - cppvsdbg : native Microsoft debugger for MSVC (Windows) — needs ms-vscode.cpptools

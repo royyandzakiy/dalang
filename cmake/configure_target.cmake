@@ -13,7 +13,13 @@ function(configure_target target)
   # calling configure_target(). Tests and third-party FetchContent code are never tidied
   # (test code legitimately breaks many rules; deps are not ours to lint).
   if(ENABLE_CLANG_TIDY AND CLANG_TIDY_EXE)
-    set_target_properties(${target} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+    set(_tidy_cmd "${CLANG_TIDY_EXE}")
+    if(MSVC)
+      # clang-tidy in cl driver mode drops the /EHsc from the compile command and then rejects
+      # every try/catch as "exceptions disabled".
+      list(APPEND _tidy_cmd "--extra-arg=/EHsc")
+    endif()
+    set_target_properties(${target} PROPERTIES CXX_CLANG_TIDY "${_tidy_cmd}")
     message(STATUS "Clang-Tidy enabled for ${target}")
   endif()
 
