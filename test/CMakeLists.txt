@@ -27,18 +27,13 @@ include(GoogleTest)
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVERY_MODE PRE_TEST)
 
 # =============================================================================
-# dalang tests. Unit tests fake git through a mocked IProcessRunner; the integration test
-# runs real git against a local repository and is skipped when git isn't installed.
+# dalang tests. The generator is tested with FakeRunner (test_utils.hpp) in place of git, plus a
+# few tests that run real git against a local repository, skipped when git isn't installed.
 # =============================================================================
 if(BUILD_APP)
-  add_executable(dalang_tests
-    test_generator.cpp
-    test_git.cpp
-    test_integration.cpp
-    test_templates.cpp
-    temp_dir.hpp)
-  target_link_libraries(dalang_tests PRIVATE dalang_core GTest::gmock_main)
-  if (ENABLE_SANITIZERS)
+  add_executable(dalang_tests test_core.cpp test_generator.cpp)
+  target_link_libraries(dalang_tests PRIVATE dalang_internal GTest::gmock GTest::gtest_main)
+  if(ENABLE_SANITIZERS)
     target_enable_sanitizers(dalang_tests)
   endif()
   gtest_discover_tests(dalang_tests)

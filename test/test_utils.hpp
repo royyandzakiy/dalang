@@ -15,7 +15,8 @@
 /// A fresh directory under the system temp dir, deleted with its contents on destruction.
 class TempDir {
   public:
-	TempDir() : m_path(std::filesystem::temp_directory_path() / ("dalang_test_" + std::to_string(std::random_device{}()))) {
+	TempDir()
+		: m_path(std::filesystem::temp_directory_path() / ("dalang_test_" + std::to_string(std::random_device{}()))) {
 		std::filesystem::create_directories(m_path);
 	}
 	~TempDir() {
@@ -28,7 +29,9 @@ class TempDir {
 	TempDir(TempDir &&) = delete;
 	TempDir &operator=(TempDir &&) = delete;
 
-	[[nodiscard]] const std::filesystem::path &path() const { return m_path; }
+	[[nodiscard]] const std::filesystem::path &path() const {
+		return m_path;
+	}
 
   private:
 	std::filesystem::path m_path;

@@ -1,4 +1,3 @@
-# .github/workflows/build-and-test.yaml
 name: CI
 
 on:
@@ -51,18 +50,18 @@ jobs:
           cmake-args: -D PKG_MANAGER=${{ env.PKG_MANAGER }} -D BUILD_TESTING=ON
           retry: true
 
-      # - name: Coverage report
-      #   if: matrix.preset == 'clang-linux-debug' && env.BUILD_LIB == 'ON' # BUILD_LIB required to enable coverage target
-      #   run: cmake --build --preset ${{ matrix.preset }} --target coverage
+      - name: Coverage report
+        if: matrix.preset == 'clang-linux-debug'
+        run: cmake --build --preset ${{ matrix.preset }} --target coverage
 
-      # - name: Coverage job summary
-      #   if: matrix.preset == 'clang-linux-debug'
-      #   run: |
-      #     {
-      #       echo "## Coverage — ${{ matrix.preset }} (Clang)"
-      #       echo ""
-      #       python3 scripts/cov-to-md.py "build/${{ matrix.preset }}/coverage.lcov"
-      #     } >> "$GITHUB_STEP_SUMMARY"
+      - name: Coverage job summary
+        if: matrix.preset == 'clang-linux-debug'
+        run: |
+          {
+            echo "## Coverage - ${{ matrix.preset }} (Clang)"
+            echo ""
+            python3 scripts/cov-to-md.py "build/${{ matrix.preset }}/coverage.lcov"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Stage badges (clang)
         if: matrix.preset == 'clang-linux-debug'
@@ -87,13 +86,13 @@ jobs:
           path: badges-out
           if-no-files-found: error
 
-      # - name: Upload coverage HTML
-      #   if: matrix.preset == 'clang-linux-debug'
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: coverage-${{ matrix.preset }}
-      #     path: build/${{ matrix.preset }}/coverage-html
-      #     if-no-files-found: error
+      - name: Upload coverage HTML
+        if: matrix.preset == 'clang-linux-debug'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.preset }}
+          path: build/${{ matrix.preset }}/coverage-html
+          if-no-files-found: error
 
   windows:
     name: ${{ matrix.preset }}

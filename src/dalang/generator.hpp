@@ -50,8 +50,7 @@ Result<void> run(RunnerT &runner, std::vector<std::string> args, std::string_vie
 
 } // namespace detail
 
-template <ProcessRunnerConcept RunnerT>
-Result<void> check_available(RunnerT &runner) {
+template <ProcessRunnerConcept RunnerT> Result<void> check_available(RunnerT &runner) {
 	return runner.run(Command{.args = {"git", "--version"}, .env = {}})
 		.transform_error([](const Error &err) { return Error{fmt::format("git is required but {}", err.message)}; })
 		.and_then([](const ProcessResult &result) -> Result<void> {
@@ -74,8 +73,7 @@ Result<void> clone(RunnerT &runner, std::string_view url, const std::filesystem:
 	return detail::run(runner, std::move(args), "clone");
 }
 
-template <ProcessRunnerConcept RunnerT>
-Result<void> init(RunnerT &runner, const std::filesystem::path &dir) {
+template <ProcessRunnerConcept RunnerT> Result<void> init(RunnerT &runner, const std::filesystem::path &dir) {
 	return detail::run(runner, {"git", "-C", to_utf8(dir), "init", "--quiet"}, "init");
 }
 
@@ -87,7 +85,7 @@ Result<void> init(RunnerT &runner, const std::filesystem::path &dir) {
 
 struct GenerateOptions {
 	std::filesystem::path destination;
-	std::string project_name; ///< replaces the template's rename token
+	std::string project_name;		///< replaces the template's rename token
 	std::optional<std::string> ref; ///< branch or tag; the template's default branch if unset
 	bool init_git = true;
 };
@@ -97,11 +95,11 @@ using ProgressFn = std::function<void(std::string_view)>;
 
 /// Creates a project from a template: clone, drop the template's history and README, rename,
 /// then start a fresh repository. On failure, removes whatever it created at the destination.
-template <ProcessRunnerConcept RunnerT = ReprocRunner>
-class Generator {
+template <ProcessRunnerConcept RunnerT = ReprocRunner> class Generator {
   public:
 	explicit Generator(RunnerT runner = RunnerT{}, ProgressFn progress = {})
-		: m_runner(std::move(runner)), m_progress(std::move(progress)) {}
+		: m_runner(std::move(runner)), m_progress(std::move(progress)) {
+	}
 
 	Result<void> generate(const Template &tpl, const GenerateOptions &options) {
 		const auto &dest = options.destination;
@@ -119,7 +117,9 @@ class Generator {
 			});
 	}
 
-	RunnerT &runner() { return m_runner; }
+	RunnerT &runner() {
+		return m_runner;
+	}
 
   private:
 	static Result<void> check_destination(const std::filesystem::path &dest, bool existed) {

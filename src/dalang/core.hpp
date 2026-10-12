@@ -23,8 +23,7 @@ struct Error {
 	std::string message;
 };
 
-template <typename T = void>
-using Result = std::expected<T, Error>;
+template <typename T = void> using Result = std::expected<T, Error>;
 
 inline std::unexpected<Error> fail(std::string message) {
 	return std::unexpected(Error{std::move(message)});
@@ -50,7 +49,7 @@ inline std::filesystem::path from_utf8(std::string_view text) {
 // ============================================================================
 
 struct Command {
-	std::vector<std::string> args; ///< args[0] is the program, looked up on PATH
+	std::vector<std::string> args;			///< args[0] is the program, looked up on PATH
 	std::map<std::string, std::string> env; ///< added to the parent's environment
 };
 
@@ -70,7 +69,8 @@ concept ProcessRunnerConcept = requires(T &runner, const Command &command) {
 class ReprocRunner {
   public:
 	/// With `echo`, prints each command line and its output.
-	explicit ReprocRunner(bool echo = false) : m_echo(echo) {}
+	explicit ReprocRunner(bool echo = false) : m_echo(echo) {
+	}
 
 	[[nodiscard]] Result<ProcessResult> run(const Command &command) const;
 
@@ -110,7 +110,9 @@ class TemplateRegistry {
 	void merge(const TemplateRegistry &other);
 
 	[[nodiscard]] const Template *find(std::string_view name) const;
-	[[nodiscard]] std::span<const Template> all() const { return m_templates; }
+	[[nodiscard]] std::span<const Template> all() const {
+		return m_templates;
+	}
 	[[nodiscard]] std::vector<std::string> names() const;
 
   private:

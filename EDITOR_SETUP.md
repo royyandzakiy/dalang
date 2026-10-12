@@ -196,7 +196,7 @@ the *active* CMake configuration, not a hard-coded path. No unified output dir, 
 
 **VS Code** — press **F5** and choose a config from the dropdown. All three use
 `${command:cmake.launchTargetPath}`, so they follow the active CMake Tools target/preset (pick
-`app` / `unit_tests` in the status bar):
+`dalang` / `dalang_tests` in the status bar):
 
 - **Debug (LLDB · all OS)** — default, via CodeLLDB (`vadimcn.vscode-lldb`). Best for Clang, Apple
   Clang, clang-cl, and GCC on Linux/macOS/Windows. No cpptools needed.
@@ -211,7 +211,7 @@ clangd. Clang-only users can ignore it and just use the LLDB config.
 
 **CLion** — zero setup. CLion generates a run/debug configuration per CMake target and uses the
 toolchain's native debugger (GDB/LLDB on Unix & MinGW, the LLDB-based debugger on MSVC). Shared
-configs are committed in `.run/` (`app`, `unit_tests`), so everyone gets the same named entries;
+configs are committed in `.run/` (`dalang`, `dalang_tests`), so everyone gets the same named entries;
 they run under whichever CMake profile is selected.
 
 **CLI / any editor** — build a debug preset, then point your debugger at the preset's binary:

@@ -151,8 +151,8 @@ Result<TemplateRegistry> TemplateRegistry::parse(std::string_view toml, std::str
 	auto parsed = toml::parse(toml, source);
 	if (!parsed) {
 		const auto &err = parsed.error();
-		return fail(fmt::format("{}:{}:{}: {}", source, err.source().begin.line, err.source().begin.column,
-								err.description()));
+		return fail(
+			fmt::format("{}:{}:{}: {}", source, err.source().begin.line, err.source().begin.column, err.description()));
 	}
 
 	TemplateRegistry registry;

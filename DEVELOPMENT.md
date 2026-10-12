@@ -1,15 +1,13 @@
 # DEVELOPMENT
 
-- delete .git for all types
-- add github workflow to publish release version
-    - add git tags
-- seperate mapping into .json/.toml
+## Done
+- Renamed cecep to dalang; `new` / `list` subcommands
+- Template registry in `templates.toml` (embedded), user overrides in the config dir
+- Project rename via `rename = { token, files }`, `--ref`, `--no-git-init`, `-i` form
+- Unit tests with a fake git runner, plus real-git tests against a local repo
 
----
-
-- interactive mode to produce toml: proj name, cpp std, testing, library/exec, conan/vcpkg
-- can modify toml on the fly then reflected in the app (error if part cannot be found)
-- toml to provide substitutions
-- draw general design: toml - cecep - templates {min,full} - ...
-- connect sanitizer to debug app
-- activate clang tidy
+## Next
+- GitHub workflow to publish release binaries on `v*` tags
+- README rewrite (install, usage, templates, flow diagram), fresh CHANGELOG, LICENSE
+- Interactive mode: more choices (C++ standard, package manager) once templates support them
+- Connect sanitizer to debug app

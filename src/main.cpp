@@ -70,7 +70,9 @@ bool run_interactive(const dalang::TemplateRegistry &registry, NewArgs &args) {
 		screen.Exit();
 	};
 
-	InputOption input_option{.multiline = false, .on_enter = confirm};
+	InputOption input_option;
+	input_option.multiline = false;
+	input_option.on_enter = confirm;
 	input_option.placeholder = "my_project";
 	auto destination = Input(&args.destination, input_option);
 	input_option.placeholder = "same as the destination folder";
@@ -79,7 +81,8 @@ bool run_interactive(const dalang::TemplateRegistry &registry, NewArgs &args) {
 	auto create = Button("Create", confirm, ButtonOption::Ascii());
 	auto cancel = Button("Cancel", screen.ExitLoopClosure(), ButtonOption::Ascii());
 
-	auto form = Container::Vertical({template_list, destination, project_name, Container::Horizontal({create, cancel})});
+	auto form =
+		Container::Vertical({template_list, destination, project_name, Container::Horizontal({create, cancel})});
 	auto view = Renderer(form, [&] {
 		return vbox({
 				   text("dalang - new project") | bold,
@@ -111,9 +114,8 @@ bool run_interactive(const dalang::TemplateRegistry &registry, NewArgs &args) {
 }
 
 int list_templates(const dalang::TemplateRegistry &registry) {
-	const auto width = std::ranges::max(registry.all() | std::views::transform([](const dalang::Template &tpl) {
-											return tpl.name.size();
-										}));
+	const auto width = std::ranges::max(
+		registry.all() | std::views::transform([](const dalang::Template &tpl) { return tpl.name.size(); }));
 	for (const auto &tpl : registry.all()) {
 		fmt::println("{:<{}}  {}", tpl.name, width, tpl.description);
 		fmt::println("{:<{}}  {}", "", width, tpl.url);
