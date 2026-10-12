@@ -15,13 +15,3 @@ else()
   set(PROJECT_VERSION_STRING "0.1.0")
   message(WARNING "version.txt not found; defaulting to ${PROJECT_VERSION_STRING}. else, create version.txt with values X.Y.Z (can have more than 1 digit for each)")
 endif()
-
-function(generate_version_header)
-  # NB: CMAKE_CURRENT_LIST_DIR inside a function is the CALLER's dir, so use an explicit path.
-  # Generated under include/MyLib/ so it ships as part of MyLib's installed public headers.
-  configure_file(
-    "${PROJECT_SOURCE_DIR}/cmake/version.h.in"
-    "${PROJECT_SOURCE_DIR}/include/MyLib/version.h" @ONLY)
-  source_group("Generated" FILES "${PROJECT_SOURCE_DIR}/include/MyLib/version.h")
-  message(STATUS "Version header: ${PROJECT_NAME} v${PROJECT_VERSION}")
-endfunction()

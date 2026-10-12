@@ -1,6 +1,5 @@
-# test/CMakeLists.txt
 # =============================================================================
-# GTest Setup (shared by unit_tests and the sanitizer trip-wires)
+# GTest Setup (shared by dalang_tests and the sanitizer trip-wires)
 # =============================================================================
 # find_package(GTest CONFIG REQUIRED) # need to add `gtest` in vcpkg.json
 include(FetchContent)
@@ -28,17 +27,21 @@ include(GoogleTest)
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVERY_MODE PRE_TEST)
 
 # =============================================================================
-# App module tests — exercise src/greeter with a MOCKED clock (gmock). Built only with
-# BUILD_APP, since that is what they test. gmock_main provides main() + InitGoogleMock.
+# dalang tests. Unit tests fake git through a mocked IProcessRunner; the integration test
+# runs real git against a local repository and is skipped when git isn't installed.
 # =============================================================================
 if(BUILD_APP)
-  add_executable(app_tests test_app.cpp ${PROJECT_SOURCE_DIR}/src/greeter.cpp)
-  target_include_directories(app_tests PRIVATE ${PROJECT_SOURCE_DIR}/src)
-  target_link_libraries(app_tests PRIVATE GTest::gmock_main fmt::fmt)
+  add_executable(dalang_tests
+    test_generator.cpp
+    test_git.cpp
+    test_integration.cpp
+    test_templates.cpp
+    temp_dir.hpp)
+  target_link_libraries(dalang_tests PRIVATE dalang_core GTest::gmock_main)
   if (ENABLE_SANITIZERS)
-    target_enable_sanitizers(app_tests)
+    target_enable_sanitizers(dalang_tests)
   endif()
-  gtest_discover_tests(app_tests)
+  gtest_discover_tests(dalang_tests)
 endif()
 
 # =============================================================================

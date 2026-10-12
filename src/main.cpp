@@ -1,168 +1,170 @@
+#include "dalang/build_info.hpp"
+#include "dalang/generator.hpp"
+#include "dalang/git.hpp"
+#include "dalang/paths.hpp"
+#include "dalang/process.hpp"
+#include "dalang/templates.hpp"
+#include "interactive.hpp"
+
 #include <CLI/CLI.hpp>
-#include <array>
-#include <cpp-subprocess/subprocess.hpp>
-#include <cstdio>
-#include <filesystem>
 #include <fmt/base.h>
-#include <fmt/color.h>
-#include <ftxui/component/component.hpp>
-#include <ftxui/component/screen_interactive.hpp>
-#include <ftxui/dom/elements.hpp>
-#include <map>
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+
+#include <algorithm>
+#include <cstdio>
+#include <exception>
+#include <filesystem>
+#include <optional>
 #include <string>
 #include <string_view>
-#include <system_error>
-#include <utility>
-#include <vector>
 
-namespace sp = subprocess;
+namespace {
+
 namespace fs = std::filesystem;
 
-constexpr std::array<std::pair<std::string_view, std::string_view>, 5> template_type_map{{
-	{"full", "https://github.com/royyandzakiy/cpp-project-template"},
-	{"min", "https://github.com/royyandzakiy/cpp-project-template-min"},
-	{"zephyr", "https://github.com/royyandzakiy/zephyr-project-template"},
-	{"idf", "https://github.com/royyandzakiy/esp-idf-project-template"},
-	{"qml", "https://github.com/royyandzakiy/qml-project-template"},
-}};
+struct GlobalArgs {
+	bool verbose = false;
+	bool quiet = false;
+	std::string config;
+};
 
-std::string select_cpp_standard() {
-	using namespace ftxui;
-	auto screen = ScreenInteractive::FitComponent();
-	std::vector<std::string> std_opt = {"C++11", "C++17", "C++20", "C++23"};
-	int std_selected = 0;
+struct NewArgs {
+	std::string destination;
+	std::string template_name = "min";
+	std::string project_name;
+	std::string ref;
+	bool no_git_init = false;
+	bool interactive = false;
+};
 
-	MenuOption option;
-	option.on_enter = screen.ExitLoopClosure();
-
-	auto menu = Menu(&std_opt, &std_selected, option);
-
-	auto renderer = Renderer(menu, [&] {
-		return vbox({
-			text("Choose C++ standard:"),
-			menu->Render(),
-		});
-	});
-
-	screen.Loop(renderer);
-
-	return std_opt.at(std_selected);
+void print_error(std::string_view message) {
+	fmt::println(stderr, "error: {}", message);
 }
 
-/// Clone `url` into `dest`. Returns the process exit code (0 on success).
-int clone_template(const std::string &url, const fs::path &dest) {
-	auto p = sp::Popen({"git", "clone", url, dest.string()}, sp::output{sp::PIPE}, sp::error{sp::PIPE});
-	auto err = p.wait();
-	if (err != 0) {
-		fmt::println(stderr, "Git clone error code: {}", err);
+int list_templates(const dalang::TemplateRegistry &registry) {
+	std::size_t width = 0;
+	for (const auto &tpl : registry.all()) {
+		width = std::max(width, tpl.name.size());
 	}
-	return err;
-}
-
-/// Remove a single file, logging if it was missing or failed.
-void remove_file(const fs::path &path) {
-	std::error_code err;
-	if (!fs::remove(path, err) && !err) {
-		fmt::println("{} does not exist", path.filename().string());
-	} else if (err) {
-		fmt::println(stderr, "Failed to remove {}: {}", path.string(), err.message());
+	for (const auto &tpl : registry.all()) {
+		fmt::println("{:<{}}  {}", tpl.name, width, tpl.description);
+		fmt::println("{:<{}}  {}", "", width, tpl.url);
 	}
-}
 
-/// Recursively remove a directory, logging if it was missing or failed.
-void remove_dir(const fs::path &path) {
-	std::error_code err;
-	if (!fs::remove_all(path, err) && !err) {
-		fmt::println("{} folder does not exist", path.filename().string());
-	} else if (err) {
-		fmt::println(stderr, "Failed to remove {}: {}", path.string(), err.message());
+	const auto user_config = dalang::user_config_path();
+	if (!user_config.empty()) {
+		std::error_code err;
+		fmt::println("\nUser templates: {} ({})", dalang::to_utf8(user_config),
+					 fs::exists(user_config, err) ? "loaded" : "not found");
 	}
+	return 0;
 }
 
-/// Remove the cloned template's metadata (.git, README.md) and re-init git.
-/// Returns the process exit code of `git init` (0 on success).
-int reset_template_repo(const fs::path &dest) {
-	remove_file(dest / "README.md");
-	remove_dir(dest / ".git");
-
-	auto current_path = fs::current_path();
-	fs::current_path(dest);
-
-	auto p = sp::Popen({"git", "init"}, sp::output{sp::PIPE}, sp::error{sp::PIPE});
-	auto err = p.wait();
-
-	fs::current_path(current_path);
-	if (err != 0) {
-		fmt::println(stderr, "Git init error code: {}", err);
+int new_project(const dalang::TemplateRegistry &registry, NewArgs args, const GlobalArgs &global) {
+	if (args.interactive) {
+		auto choice = dalang::run_interactive(registry, {.template_name = args.template_name,
+														 .destination = args.destination,
+														 .project_name = args.project_name});
+		if (!choice) {
+			fmt::println(stderr, "Cancelled");
+			return 1;
+		}
+		args.template_name = std::move(choice->template_name);
+		args.destination = std::move(choice->destination);
+		args.project_name = std::move(choice->project_name);
 	}
-	return err;
-}
-
-/// Returns the URL for `key`, or an empty string_view if not found.
-std::string_view find_template_url(std::string_view key) {
-	for (const auto &[k, v] : template_type_map)
-		if (k == key)
-			return v;
-	return {};
-}
-
-/// Clone `url` into `dest`. Returns the process exit code (0 on success).
-int clone_template(std::string_view url, const fs::path &dest) {
-	auto p = sp::Popen({"git", "clone", std::string(url), dest.string()}, sp::output{sp::PIPE}, sp::error{sp::PIPE});
-	auto err = p.wait();
-	if (err != 0) {
-		fmt::println(stderr, "Git clone error code: {}", err);
-	}
-	return err;
-}
-
-auto main(int argc, char **argv) -> int {
-	std::string selected_template_type{};
-	fs::path selected_dest_folder{};
-
-	// template type list
-	std::vector<std::string_view> template_types;
-	template_types.reserve(template_type_map.size());
-	for (const auto &[k, _] : template_type_map)
-		template_types.push_back(k);
-
-	// parse CLI options
-	CLI::App app{"Cecep C++ Project Generator"};
-	argv = app.ensure_utf8(argv);
-	app.add_option("dest,-d,--dest", selected_dest_folder, "The folder destination")
-		->default_val("my_project")
-		->capture_default_str();
-	app.add_option("type,-t,--type", selected_template_type, "The type of template")
-		->default_val("min")
-		->check(CLI::IsMember(template_types)) // Validate input against template_type_map keys
-		->capture_default_str();
-
-	app.parse(argc, argv);
-
-	const auto url = find_template_url(selected_template_type);
-	if (url.empty()) {
-		fmt::println(stderr, "Template '{}' not found", selected_template_type);
+	if (args.destination.empty()) {
+		print_error("missing destination folder, e.g. `dalang new my_project`");
 		return 1;
 	}
 
-	fmt::println("Generating project from template: {} -> {}", selected_template_type, url);
-	fmt::println("Destination: {}", selected_dest_folder.string());
-
-	// menu: show cpp standard
-	// auto cpp_std = select_cpp_standard();
-	// fmt::println("std: {}", cpp_std);
-
-	// run git clone, change folder name
-	if (auto err = clone_template(url, selected_dest_folder); err != 0) {
-		return err;
+	const auto *tpl = registry.find(args.template_name);
+	if (tpl == nullptr) {
+		print_error(fmt::format("unknown template '{}' (available: {})", args.template_name,
+								fmt::join(registry.names(), ", ")));
+		return 1;
 	}
 
-	// delete .git & readme, git init
-	if (auto err = reset_template_repo(selected_dest_folder); err != 0) {
-		return err;
+	const auto destination = dalang::from_utf8(args.destination);
+	const dalang::GenerateOptions options{
+		.destination = destination,
+		.project_name = args.project_name.empty() ? dalang::default_project_name(destination) : args.project_name,
+		.ref = args.ref.empty() ? std::nullopt : std::optional<std::string>(args.ref),
+		.init_git = !args.no_git_init,
+	};
+
+	dalang::ReprocRunner runner(global.verbose);
+	dalang::Git git(runner);
+	dalang::ProgressFn progress;
+	if (!global.quiet) {
+		progress = [](std::string_view line) { fmt::println("{}", line); };
 	}
+	dalang::Generator generator(git, progress);
 
-	fmt::println("Project generation successful!", selected_dest_folder.string());
-
+	if (auto generated = generator.generate(*tpl, options); !generated) {
+		print_error(generated.error().message);
+		return 1;
+	}
+	if (!global.quiet) {
+		fmt::println("\nCreated '{}' in {}\n\nNext:\n  cd {}", options.project_name, args.destination,
+					 args.destination);
+	}
 	return 0;
+}
+
+int run(int argc, char **argv) {
+	CLI::App app{"Create new projects from git templates.", "dalang"};
+	argv = app.ensure_utf8(argv);
+	app.set_version_flag("-V,--version", std::string(dalang::build_info::version));
+	app.require_subcommand(1);
+	app.fallthrough();
+	app.footer("Examples:\n"
+			   "  dalang new my_app                 minimal C++ project in ./my_app\n"
+			   "  dalang new fw -t zephyr -n blinky Zephyr workspace named 'blinky'\n"
+			   "  dalang new -i                     choose everything in a form\n"
+			   "  dalang list                       show available templates");
+
+	GlobalArgs global;
+	auto *verbose = app.add_flag("-v,--verbose", global.verbose, "Print each git command before running it");
+	app.add_flag("-q,--quiet", global.quiet, "Print errors only")->excludes(verbose);
+	app.add_option("-c,--config", global.config, "Extra templates file, instead of the user config")
+		->check(CLI::ExistingFile);
+
+	NewArgs new_args;
+	auto *new_cmd = app.add_subcommand("new", "Create a project from a template");
+	new_cmd->add_option("destination", new_args.destination, "Folder to create (must not exist, or be empty)");
+	new_cmd->add_option("-t,--template", new_args.template_name, "Template name, see `dalang list`")
+		->capture_default_str();
+	new_cmd->add_option("-n,--name", new_args.project_name, "Project name (default: destination folder name)");
+	new_cmd->add_option("-r,--ref", new_args.ref, "Template branch or tag (default: its default branch)");
+	new_cmd->add_flag("--no-git-init", new_args.no_git_init, "Skip creating a git repository");
+	new_cmd->add_flag("-i,--interactive", new_args.interactive, "Pick template and destination in a form");
+
+	auto *list_cmd = app.add_subcommand("list", "Show available templates");
+
+	CLI11_PARSE(app, argc, argv);
+
+	auto registry = dalang::load_registry(global.config.empty() ? std::nullopt
+																: std::optional(dalang::from_utf8(global.config)));
+	if (!registry) {
+		print_error(registry.error().message);
+		return 1;
+	}
+
+	if (list_cmd->parsed()) {
+		return list_templates(*registry);
+	}
+	return new_project(*registry, std::move(new_args), global);
+}
+
+} // namespace
+
+auto main(int argc, char **argv) -> int {
+	try {
+		return run(argc, argv);
+	} catch (const std::exception &e) {
+		print_error(e.what());
+		return 1;
+	}
 }

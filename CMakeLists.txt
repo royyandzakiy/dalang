@@ -7,7 +7,7 @@ include(project_options.local.cmake OPTIONAL) # create & modify to change locall
 include(project_options.cmake) # modify to change for all developers
 
 # If this project is consumed via add_subdirectory(), the parent owns the provider/toolchain, hence
-# omit this setup_package_maanager(). But because before project(), PROJECT_IS_TOP_LEVEL isn't set yet
+# omit this setup_package_manager(). But because before project(), PROJECT_IS_TOP_LEVEL isn't set yet
 # hence use the source-dir check
 include(cmake/package_manager.cmake)
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
@@ -19,7 +19,9 @@ endif()
 #=========================
 include(cmake/version.cmake) # reads version.txt -> PROJECT_VERSION_STRING (before project())
 project(
-  cecep
+  dalang
+  DESCRIPTION "Create new projects from git templates"
+  HOMEPAGE_URL "https://github.com/royyandzakiy/dalang"
   LANGUAGES CXX
   VERSION ${PROJECT_VERSION_STRING})
 
@@ -45,13 +47,6 @@ include(cmake/profiler.cmake)            # Tracy / Perfetto / ClangBuildAnalyzer
 include(cmake/configure_target.cmake)    # defines configure_target() — PCH, unity, tidy, profiler link, ASan deploy
 
 #=========================
-# Version Header
-#=========================
-if(GENERATE_VERSION_HEADER)
-  generate_version_header()
-endif()
-
-#=========================
 # Dependencies
 #=========================
 include(project_dependencies.cmake)
@@ -61,10 +56,10 @@ include(project_dependencies.cmake)
 #=========================
 # Add or remove targets as needed
 if(BUILD_APP)
-  add_subdirectory(src) # standalone hello-world binary
+  add_subdirectory(src) # dalang_core library + dalang executable
 endif()
 if(BUILD_EXAMPLES)
-  add_subdirectory(examples) # AFTER src/mylib so the example can link the MyLib target
+  add_subdirectory(examples)
 endif()
 
 #=========================
@@ -74,7 +69,7 @@ if(BUILD_TESTING)
   include(cmake/coverage.cmake) # coverage instrumentation + setup_coverage_target() (when ENABLE_COVERAGE)
   enable_testing() # ctest / gtest_discover_tests register the unit tests
   add_subdirectory(test)
-  if(ENABLE_COVERAGE AND TARGET unit_tests)
-    setup_coverage_target(unit_tests) # adds the `coverage` target (runs tests + reports)
+  if(ENABLE_COVERAGE AND TARGET dalang_tests)
+    setup_coverage_target(dalang_tests) # adds the `coverage` target (runs tests + reports)
   endif()
 endif()

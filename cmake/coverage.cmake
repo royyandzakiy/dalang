@@ -47,7 +47,7 @@ endif()
 function(setup_coverage_target test_target)
   set(_cov "${CMAKE_BINARY_DIR}/coverage")
   set(_html "${CMAKE_BINARY_DIR}/coverage-html")
-  set(_ignore "(/_deps/|/test/|/usr/)") # report first-party production sources only
+  set(_ignore "(/_deps/|/test/|/usr/|/[.]conan2/|/vcpkg_installed/|/generated/)") # first-party production sources only
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND LLVM_PROFDATA AND LLVM_COV)
     add_custom_target(
@@ -80,7 +80,7 @@ function(setup_coverage_target test_target)
       COMMAND "${CMAKE_CTEST_COMMAND}" --test-dir "${CMAKE_BINARY_DIR}" --output-on-failure
       COMMAND "${CMAKE_COMMAND}" -E make_directory "${_html}"
       COMMAND "${GCOVR}" --root "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" --exclude ".*/_deps/.*"
-              --exclude ".*/test/.*" --print-summary --html-details "${_html}/index.html"
+              --exclude ".*/test/.*" --exclude ".*/[.]conan2/.*" --print-summary --html-details "${_html}/index.html"
       COMMAND "${CMAKE_COMMAND}" -E echo "HTML report: ${_html}/index.html"
       DEPENDS ${test_target}
       VERBATIM)

@@ -1,4 +1,5 @@
-Checks: 'bugprone-*,modernize-*,performance-*,cppcoreguidelines-*,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-modernize-use-trailing-return-type,-cppcoreguidelines-avoid-magic-numbers,-clang-analyzer-cplusplus.NewDeleteLeaks'
+# optin.core.EnumCastOutOfRange is disabled for false positives on the MSVC STL bitmask operators in <filesystem>.
+Checks: 'bugprone-*,modernize-*,performance-*,cppcoreguidelines-*,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-modernize-use-trailing-return-type,-cppcoreguidelines-avoid-magic-numbers,-clang-analyzer-cplusplus.NewDeleteLeaks,-clang-analyzer-optin.core.EnumCastOutOfRange'
 WarningsAsErrors: '*'
 HeaderFilterRegex: 'src/.*|include/.*'
 FormatStyle: file

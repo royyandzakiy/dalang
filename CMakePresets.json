@@ -38,8 +38,8 @@
                         },
                         "cacheVariables": {
                                 "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/bin/msvc",
-								"CMAKE_C_COMPILER": "cl.exe",
-        						"CMAKE_CXX_COMPILER": "cl.exe"
+                                "CMAKE_C_COMPILER": "cl.exe",
+                                "CMAKE_CXX_COMPILER": "cl.exe"
                         }
                 },
                 {
@@ -329,54 +329,6 @@
                                 "ENABLE_UNITY_BUILD": "ON",
                                 "BUILD_EXAMPLES": "ON"
                         }
-                },
-                {
-                        "name": "clang-cl-lib-only-debug",
-                        "displayName": "Clang-CL — MyLib only (Debug)",
-                        "inherits": [
-                                "clang-cl-base",
-                                "build-debug"
-                        ],
-                        "cacheVariables": {
-                                "BUILD_APP": "OFF",
-                                "BUILD_LIB": "ON"
-                        }
-                },
-                {
-                        "name": "clang-cl-lib-only-release",
-                        "displayName": "Clang-CL — MyLib only (Release)",
-                        "inherits": [
-                                "clang-cl-base",
-                                "build-release"
-                        ],
-                        "cacheVariables": {
-                                "BUILD_APP": "OFF",
-                                "BUILD_LIB": "ON"
-                        }
-                },
-                {
-                        "name": "clang-linux-lib-only-debug",
-                        "displayName": "Clang Linux — MyLib only (Debug)",
-                        "inherits": [
-                                "clang-linux-base",
-                                "build-debug"
-                        ],
-                        "cacheVariables": {
-                                "BUILD_APP": "OFF",
-                                "BUILD_LIB": "ON"
-                        }
-                },
-                {
-                        "name": "clang-linux-lib-only-release",
-                        "displayName": "Clang Linux — MyLib only (Release)",
-                        "inherits": [
-                                "clang-linux-base",
-                                "build-release"
-                        ],
-                        "cacheVariables": {
-                                "BUILD_APP": "OFF",
-                                "BUILD_LIB": "ON"
-                        }
                 }
         ],
         "buildPresets": [
@@ -486,26 +438,6 @@
                         "name": "clang-linux-full",
                         "inherits": "build-type-debug",
                         "configurePreset": "clang-linux-full"
-                },
-                {
-                        "name": "clang-cl-lib-only-debug",
-                        "inherits": "build-type-debug",
-                        "configurePreset": "clang-cl-lib-only-debug"
-                },
-                {
-                        "name": "clang-cl-lib-only-release",
-                        "inherits": "build-type-release",
-                        "configurePreset": "clang-cl-lib-only-release"
-                },
-                {
-                        "name": "clang-linux-lib-only-debug",
-                        "inherits": "build-type-debug",
-                        "configurePreset": "clang-linux-lib-only-debug"
-                },
-                {
-                        "name": "clang-linux-lib-only-release",
-                        "inherits": "build-type-release",
-                        "configurePreset": "clang-linux-lib-only-release"
                 }
         ],
         "testPresets": [
