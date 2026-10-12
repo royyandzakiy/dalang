@@ -1,49 +1,51 @@
 # Changelog
 
-Notable changes to this template, grouped chronologically by commit history (condensed — not every
-commit). Newest first.
+All notable changes to dalang. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+and the project uses [Semantic Versioning](https://semver.org/).
 
-## 2026-06-26 → 06-27 — App/library split & subproject support
-- Split into two targets: `MyApp` (standalone app) and `MyLib` (shared-by-default / static via
-  `BUILD_LIB_SHARED`), each toggleable with `BUILD_APP` / `BUILD_LIB`.
-- `MyLib` ships an installable CMake package: `generate_export_header` (`MYLIB_EXPORT`),
-  `MyLibConfig.cmake` + version file, auto-staged to `generated_lib/<platform>/<config>/`.
-- `PROJECT_IS_TOP_LEVEL` guards + `PROJECT_SOURCE_DIR` paths so the project works via
-  `add_subdirectory()`.
-- Added an `app_tests` target demonstrating dependency injection with a mocked interface (gmock).
-- cmake-conan switched from submodule to FetchContent; per-config-correct multi-config dependency
-  handling; per-OS/compiler CI badges.
-- Fixed: package-manager setup ordering before `project()` (a mis-order resolved the wrong vcpkg `fmt`
-  and crashed MSVC Debug only).
+## [2.0.0] - 2026-10-13
 
-## 2026-06-25 — Hardening, modularization & coverage
-- Refactored the monolithic `CMakeLists.txt` into focused `cmake/` modules.
-- Added compiler hardening defaults and a `build all` path.
-- Added code coverage (llvm-cov / gcovr), a `coverage` target, CI report + badges, and a `classify`
-  component to showcase partial branch coverage.
-- `version.txt` as single source of truth; completed the remaining presets.
+Renamed from cecep to dalang. The command line changed, so this is a major release.
 
-## 2026-06-24 — Package managers, CI & sanitizer tests
-- Unified `PKG_MANAGER` macro (vcpkg | conan | none) with graceful Conan→vcpkg fallback.
-- Added GitHub Actions CI, devcontainers, and `BUILD_TESTING` toggle.
-- Full sanitizer test suite (ASan/TSan/MSan in one file), including Windows ASan for MSVC and clang-cl.
-- Separated output bin folders per compiler.
+### Added
+- `dalang new <dest>` with `-t/--template`, `-n/--name`, `-r/--ref` (branch or tag),
+  `--no-git-init` and `-i/--interactive` (pick template, destination and name in a form).
+- `dalang list` shows the templates and where user templates are read from.
+- Templates are defined in `templates.toml`, embedded in the binary. Users can add or override
+  templates in `%APPDATA%\dalang\templates.toml` or `~/.config/dalang/templates.toml`, or pass a
+  file with `-c/--config`.
+- Project rename: each template can list the files where its own project name is replaced by
+  the new one (`rename = { token, files }`).
+- The generated project gets a short README naming its template.
+- `-v/--verbose` prints each git command and its output, `-q/--quiet` prints errors only,
+  `-V/--version` prints the version.
+- Release workflow publishing Windows, Linux and macOS binaries on `v*` tags.
 
-## 2026-06-23 — Template foundation rework
-- Standard project files, pre-commit hook, editor setup, better debugging support.
-- Added Conan support and PCH; integrated codebase-memory indexing.
-- Removed cppcheck/IWYU; cleaned up clangd false-positive diagnostics.
+### Changed
+- Positional `dest type` arguments replaced by the `new` subcommand and `-t`.
+- Clones are shallow (`--depth 1`), and git never prompts for credentials.
+- git errors include git's own output.
+- Process handling moved from cpp-subprocess to reproc, which is available on both Conan and
+  vcpkg.
 
-## 2026-06-10 → 06-22 — Presets, profilers & examples
-- Built out CMakePresets (Windows/Linux/macOS base presets, inheritance, conditionals).
-- vcpkg manifest mode as default; local vcpkg root handling.
-- Added all sanitizer/profiler integrations (Tracy/Perfetto) with examples; brief IWYU experiment.
-- Cleaned up `project_options.cmake` and header separators; fixed project-name macro.
+### Fixed
+- `--help` and invalid arguments no longer end in an uncaught exception.
+- An existing, non-empty destination is refused before anything runs.
+- A failed generation removes what it created.
+- Non-ASCII paths work on Windows.
 
-## 2026-05 — Template-ization
-- Made sanitizers optional; reframed the README as a reusable template; moved to clang-18.
+## [1.1.0] - 2026-10-12
 
-## 2026-04 — Initial scaffolding
-- Project init with MinGW preset and CI workflow.
-- vcpkg setup with manifest-mode check; `fmt`; clang-tidy, cppcheck, cmake-format.
-- First compiler sanitizers, ASan flags, and Tracy integration; professional README structure.
+### Added
+- `qml` template (Qt 6 / QML desktop app).
+
+## [1.0.0] - 2026-09-28
+
+First version, as cecep.
+
+### Added
+- Generates a project by cloning a template, deleting its `.git` and README, and running
+  `git init`.
+- Templates: `full`, `min`, `zephyr`, `idf`.
+
+[2.0.0]: https://github.com/royyandzakiy/dalang/releases/tag/v2.0.0

@@ -165,8 +165,8 @@ Result<TemplateRegistry> TemplateRegistry::parse(std::string_view toml, std::str
 		return fail(fmt::format("{}: 'template' must be an array of tables ([[template]])", source));
 	}
 
-	for (const auto &[index, entry] : std::views::enumerate(*entries)) {
-		auto tpl = parse_template(entry, fmt::format("{}: template #{}", source, index + 1));
+	for (std::size_t index = 0; index < entries->size(); ++index) {
+		auto tpl = parse_template(*entries->get(index), fmt::format("{}: template #{}", source, index + 1));
 		if (!tpl) {
 			return std::unexpected(std::move(tpl).error());
 		}
