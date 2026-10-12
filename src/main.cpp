@@ -23,6 +23,7 @@ constexpr std::array<std::pair<std::string_view, std::string_view>, 4> template_
 	{"min", "https://github.com/royyandzakiy/cpp-project-template-min"},
 	{"zephyr", "https://github.com/royyandzakiy/zephyr-project-template"},
 	{"idf", "https://github.com/royyandzakiy/esp-idf-project-template"},
+	{"qml", "https://github.com/royyandzakiy/qml-project-template"},
 }};
 
 std::string select_cpp_standard() {
