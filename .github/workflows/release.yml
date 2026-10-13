@@ -94,16 +94,15 @@ jobs:
           path: dist
           merge-multiple: true
 
-      # Release notes are this version's section of CHANGELOG.md.
+      # Release notes are this tag's section of CHANGELOG.md (`## [vX.Y.Z]`).
       - name: Extract release notes
         run: |
-          version="${GITHUB_REF_NAME#v}"
-          awk -v v="$version" '
-            /^## \[/ { if (found) exit; found = index($0, "[" v "]") > 0; next }
+          awk -v tag="$GITHUB_REF_NAME" '
+            /^## \[/ { if (found) exit; found = index($0, "[" tag "]") > 0; next }
             found
           ' CHANGELOG.md > notes.md
           if [ ! -s notes.md ]; then
-            echo "::error::CHANGELOG.md has no section for ${version}"
+            echo "::error::CHANGELOG.md has no section for ${GITHUB_REF_NAME}"
             exit 1
           fi
 

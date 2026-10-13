@@ -167,6 +167,15 @@ repository and are skipped when git isn't installed.
 See [EDITOR_SETUP.md](EDITOR_SETUP.md) for VS Code and CLion, and [CONTRIBUTING.md](CONTRIBUTING.md)
 for making changes and releases.
 
+## Documentation
+
+| | |
+|---|---|
+| [CHANGELOG.md](CHANGELOG.md) | What changed in each version, linked to the RFCs |
+| [docs/architecture](docs/architecture/README.md) | C4 context, container and component diagrams and the `new` flow, per architecture stage |
+| [docs/rfc](docs/rfc/README.md) | Design write-ups: findings, alternatives, implementation, verification |
+| [docs/adr](docs/adr/README.md) | One short record per architectural decision |
+
 ## License
 
 [MIT](LICENSE)
