@@ -6,6 +6,8 @@
 ![C++23](https://img.shields.io/badge/C%2B%2B-23-00599C?logo=cplusplus&logoColor=white)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
+![](docs/imgs/dalang-logo-50-percent.jpg)
+
 Start a new project from a git template in one command. dalang clones the template, drops its
 history and README, renames it to your project and starts a fresh git repository.
 
