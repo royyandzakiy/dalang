@@ -49,6 +49,8 @@ endif()
 if(ENABLE_SANITIZERS)
   add_executable(sanitizer_tests sanitizers/sanitizer_tests.cpp)
   target_link_libraries(sanitizer_tests PRIVATE GTest::gtest GTest::gtest_main)
+  # The trip-wires need the sanitizer flags themselves; also deploys the Windows ASan DLL.
+  target_enable_sanitizers(sanitizer_tests)
   # Compile in only the death tests whose sanitizer is actually active in this build.
   if(MSVC)
     # Windows (MSVC/clang-cl): only ASan exists — no UBSan baseline, no LSan.
@@ -72,8 +74,4 @@ if(ENABLE_SANITIZERS)
   # EXPECT_DEATH tests observe a death. (ASan/UBSan already halt.)
   gtest_discover_tests(sanitizer_tests PROPERTIES
     ENVIRONMENT "TSAN_OPTIONS=halt_on_error=1;MSAN_OPTIONS=halt_on_error=1")
-  # Windows ASan: the runtime DLL must sit next to the test exe (shared bin/ dir covers all exes).
-  if(ENABLE_ASAN)
-    deploy_asan_runtime(sanitizer_tests)
-  endif()
 endif()

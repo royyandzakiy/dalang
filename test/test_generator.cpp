@@ -218,6 +218,14 @@ TEST(GeneratorTest, EmptiesButKeepsExistingDirectoryWhenCloneFails) {
 
 namespace {
 
+/// File contents with CRLF turned into LF. git's checkout follows the user's core.autocrlf,
+/// which is true on Windows runners.
+std::string read_text(const fs::path &file) {
+	auto text = read_file(file);
+	std::erase(text, '\r');
+	return text;
+}
+
 /// file:// URL for a local path. git ignores --depth for plain local paths.
 std::string file_url(const fs::path &path) {
 	const auto generic = path.generic_u8string();
@@ -265,7 +273,7 @@ TEST_F(RealGitTest, GeneratesFromLocalRepository) {
 	auto result = m_generator.generate(sample_template(file_url(m_source)), options_for(dest));
 	ASSERT_TRUE(result) << result.error().message;
 
-	EXPECT_EQ(read_file(dest / "CMakeLists.txt"), "project(my_app)\n# v2\n");
+	EXPECT_EQ(read_text(dest / "CMakeLists.txt"), "project(my_app)\n# v2\n");
 	EXPECT_THAT(read_file(dest / "README.md"), HasSubstr("# my_app"));
 	EXPECT_TRUE(fs::exists(dest / ".git" / "HEAD"));
 
@@ -283,7 +291,7 @@ TEST_F(RealGitTest, ChecksOutRequestedTag) {
 
 	auto result = m_generator.generate(sample_template(file_url(m_source)), options);
 	ASSERT_TRUE(result) << result.error().message;
-	EXPECT_EQ(read_file(dest / "CMakeLists.txt"), "project(tagged)\n");
+	EXPECT_EQ(read_text(dest / "CMakeLists.txt"), "project(tagged)\n");
 	EXPECT_FALSE(fs::exists(dest / ".git"));
 }
 

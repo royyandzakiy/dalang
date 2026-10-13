@@ -22,6 +22,7 @@ Older documents describe the code as it was then; where today's code differs, th
 | [0005](0005-template-registry.md) | Template registry in TOML, with project rename | overhaul | Implemented | 2026-10-13 | [0006](../adr/0006-embedded-templates-toml.md), [0007](../adr/0007-rename-by-token-list.md) |
 | [0006](0006-command-line-v2.md) | Command line v2 and safe generation | overhaul | Implemented | 2026-10-13 | [0008](../adr/0008-subcommand-cli.md) |
 | [0007](0007-releases-and-docs.md) | Release binaries and project documentation | overhaul | Implemented (workflow untested until first tag) | 2026-10-13 | [0009](../adr/0009-tag-driven-releases.md) |
+| [0008](0008-ci-green.md) | Getting CI green on all 17 jobs | overhaul | Implemented | 2026-10-13 | – |
 
 ## Format
 

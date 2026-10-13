@@ -4,6 +4,12 @@ Every item links to the RFC with the evidence and reasoning; RFCs and ADRs are i
 [docs/rfc](docs/rfc/README.md) and [docs/adr](docs/adr/README.md). Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Bug Fix
+
+- CI failed on 12 of 17 jobs: sanitizer trip-wires built without sanitizers, clang-cl Conan profiles pinned to VS 2022, MSVC ASan `annotate_optional` mismatch on VS 2026, MinGW tests loading a foreign `libstdc++-6.dll`, real-git tests assuming LF line endings ([RFC 0008](docs/rfc/0008-ci-green.md))
+
 ## [v2.0.0]
 
 **Release Date:** 2026-10-13

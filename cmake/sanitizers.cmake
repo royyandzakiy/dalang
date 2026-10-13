@@ -22,10 +22,9 @@ function(target_enable_sanitizers TARGET)
       target_link_options(${TARGET} PRIVATE /INCREMENTAL:NO)
 
       # Prebuilt deps (fmt, etc. from vcpkg/conan) aren't ASan-instrumented, so the MSVC STL's
-      # container annotations mismatch at link (LNK2038 annotate_string/annotate_vector). Disable
-      # them so instrumented and non-instrumented code agree. (Loses container-overflow checks;
-      # heap/use-after-free detection is unaffected.)
-      target_compile_definitions(${TARGET} PRIVATE _DISABLE_STRING_ANNOTATION _DISABLE_VECTOR_ANNOTATION)
+      # container annotations mismatch at link (LNK2038 annotate_string/vector/optional). Disable
+      # all of them, including ones newer STLs add. Loses container-overflow checks only.
+      target_compile_definitions(${TARGET} PRIVATE _DISABLE_STL_ANNOTATION)
 
       # NOTE: do NOT pass /fsanitize=address as a *link* option — CMake links MSVC-style via
       # lld-link/link.exe directly (not the clang-cl driver), which rejects it.
