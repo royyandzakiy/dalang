@@ -94,7 +94,7 @@ Result<std::optional<Rename>> parse_rename(const toml::table &entry, std::string
 
 	Rename rename{.token = std::move(*token), .files = {}};
 	for (const auto &file : *files) {
-		rename.files.push_back(*file.value<std::string>());
+		rename.files.push_back(file.value_or(std::string{}));
 	}
 	return rename;
 }
